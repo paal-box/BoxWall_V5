@@ -69,7 +69,7 @@ extension Activity {
     static let samples: [Activity] = [
         Activity(
             id: "REF-001",
-            title: "ReFlex - Unused modules",
+            title: "Returns",
             location: "Building A • Floor 3",
             description: "30 pcs scheduled for pickup February 5th. Ensure modules are packaged for shipping and placed on pallet.",
             date: Date().addingTimeInterval(-7200), // 2 hours ago
@@ -81,7 +81,7 @@ extension Activity {
         ),
         Activity(
             id: "INV-002",
-            title: "Invoice Reminder",
+            title: "Payment",
             location: "Finance Department",
             description: "Your last invoice from BoxWall is due in 2 days. Please contact customer service for any questions.",
             date: Date().addingTimeInterval(-86400), // Yesterday
@@ -93,7 +93,7 @@ extension Activity {
         ),
         Activity(
             id: "DEL-003",
-            title: "Delivery Scheduled",
+            title: "Delivery",
             location: "Project: Cissi Klein High School",
             description: "300 BoxWall-Flex 50, 15 BoxWall Flex-Glass 44. See order for height data.",
             date: Date().addingTimeInterval(-172800), // 2 days ago
@@ -105,7 +105,7 @@ extension Activity {
         ),
         Activity(
             id: "INS-004",
-            title: "Installation Schedule",
+            title: "Installation",
             location: "Cissi Klein High School • 4th Floor",
             description: "Space must be cleared prior to work starting. Customer responsible for facility access.",
             date: Date().addingTimeInterval(-3600), // 1 hour ago
@@ -117,7 +117,7 @@ extension Activity {
         ),
         Activity(
             id: "CHG-005",
-            title: "Change Request",
+            title: "Change",
             location: "Fylkeshuset, Trondheim • 5th Floor",
             description: "68 modules scheduled for move. Contact: Torger Mjones",
             date: Date().addingTimeInterval(-43200), // 12 hours ago

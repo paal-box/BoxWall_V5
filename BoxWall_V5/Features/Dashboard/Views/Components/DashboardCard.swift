@@ -11,26 +11,29 @@ struct DashboardCard: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 // Icon
                 Image(systemName: menuItem.icon)
-                    .font(BoxWallTypography.icon(size: 24))
+                    .font(.system(size: 32, weight: .light))
                     .foregroundColor(.white)
+                    .symbolRenderingMode(.hierarchical)
                 
-                VStack(alignment: .leading, spacing: 4) {
+                Spacer()
+                
+                VStack(alignment: .leading, spacing: 8) {
                     // Title
                     Text(menuItem.title)
-                        .font(BoxWallTypography.headline)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
                     // Description
                     Text(menuItem.description)
-                        .font(BoxWallTypography.subheadline)
+                        .font(.system(size: 17, weight: .regular, design: .rounded))
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(2)
                 }
             }
-            .padding(16)
+            .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 ZStack {
@@ -43,9 +46,10 @@ struct DashboardCard: View {
                         .blur(radius: 3)
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1), radius: 10, x: 0, y: 5)
         }
+        .buttonStyle(.scale)
     }
     
     private func getGradient(for type: MenuCardItem.ItemType) -> LinearGradient {

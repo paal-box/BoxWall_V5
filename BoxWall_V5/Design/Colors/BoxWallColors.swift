@@ -25,6 +25,11 @@ enum BoxWallColors {
     /// Error color for critical issues
     static let error = Color(.systemRed)
     
+    // MARK: - Background Colors
+    static let background = Color(.systemBackground)
+    static let secondaryBackground = Color(.secondarySystemBackground)
+    static let groupedBackground = Color(.systemGroupedBackground)
+    
     // MARK: - Semantic Aliases (for better context)
     static let shopNow = primary
     static let bookExpert = secondary
@@ -36,37 +41,52 @@ enum BoxWallColors {
     static let gradients = GradientColors()
     
     struct GradientColors {
-        // Shop gradient
+        // Shop gradient - Orange to Pink
         let shop = LinearGradient(
-            colors: [Color(.systemOrange), Color(.systemOrange).opacity(0.8)],
+            colors: [
+                Color(.systemOrange),
+                Color(.systemPink).opacity(0.8)
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         
-        // Expert gradient
+        // Expert gradient - Yellow to Orange
         let expert = LinearGradient(
-            colors: [Color(.systemYellow), Color(.systemYellow).opacity(0.8)],
+            colors: [
+                Color(.systemYellow),
+                Color(.systemOrange).opacity(0.8)
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         
-        // Sustainability gradient
+        // Sustainability gradient - Green to Mint
         let sustainability = LinearGradient(
-            colors: [Color(.systemGreen), Color(.systemGreen).opacity(0.8)],
+            colors: [
+                Color(.systemGreen),
+                Color(.systemMint).opacity(0.8)
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         
-        // Inventory gradient
+        // Inventory gradient - Blue to Indigo
         let inventory = LinearGradient(
-            colors: [Color(.systemBlue), Color(.systemBlue).opacity(0.8)],
+            colors: [
+                Color(.systemBlue),
+                Color(.systemIndigo).opacity(0.8)
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         
-        // News gradient
+        // News gradient - Red to Purple
         let news = LinearGradient(
-            colors: [Color(.systemRed), Color(.systemRed).opacity(0.8)],
+            colors: [
+                Color(.systemRed),
+                Color(.systemPurple).opacity(0.8)
+            ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

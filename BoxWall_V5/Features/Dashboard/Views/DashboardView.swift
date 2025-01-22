@@ -8,47 +8,50 @@ struct DashboardView: View {
     
     // MARK: - Body
     var body: some View {
-        ScrollView {
-            GeometryReader { proxy in
-                Color.clear.preference(
-                    key: ScrollOffsetPreferenceKey.self,
-                    value: proxy.frame(in: .named("scroll")).minY
-                )
-            }
-            .frame(height: 0)
-            
-            VStack(spacing: DesignSystem.Layout.spacing * 2) {
-                // Top Bar with blur effect
-                topBar
-                    .padding(.top, DesignSystem.Layout.paddingLarge)
-                    .background(
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .opacity(scrollOffset < 0 ? 1 : 0)
-                            .animation(.easeOut(duration: 0.2), value: scrollOffset)
+        ZStack(alignment: .top) {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Top Bar
+                    topBar
+                        .padding(.horizontal)
+                        .background(
+                            BoxWallColors.background
+                                .ignoresSafeArea()
+                        )
+                    
+                    // Welcome Section
+                    welcomeSection
+                        .padding(.horizontal)
+                        .padding(.top, DesignSystem.Layout.paddingSmall)
+                    
+                    // Menu Cards
+                    menuSection
+                        .padding(.top, DesignSystem.Layout.paddingMedium)
+                    
+                    // Recent Activity
+                    activitySection
+                        .padding(.top, DesignSystem.Layout.paddingMedium)
+                }
+                .background(GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: ScrollOffsetPreferenceKey.self,
+                        value: proxy.frame(in: .named("scroll")).minY
                     )
-                
-                // Welcome Section with parallax
-                welcomeSection
-                    .padding(.top, DesignSystem.Layout.paddingMedium)
-                    .scaleEffect(scrollOffset > 0 ? 1 + scrollOffset/1000 : 1)
-                    .opacity(scrollOffset < -200 ? 0 : 1)
-                
-                // Carousel
-                carouselSection
-                
-                // Recent Activity
-                activitySection
-                    .padding(.top, DesignSystem.Layout.paddingLarge)
+                })
             }
-            .padding(.horizontal)
-        }
-        .coordinateSpace(name: "scroll")
-        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-            scrollOffset = value
+            .coordinateSpace(name: "scroll")
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                scrollOffset = value
+            }
+            .background(BoxWallColors.groupedBackground.ignoresSafeArea())
+            
+            // Black status bar overlay
+            Color.black
+                .frame(height: 47) // Status bar height
+                .ignoresSafeArea()
         }
         .sheet(isPresented: $viewModel.showingUserSettings) {
-            Text("User Settings") // Placeholder for now
+            UserSettingsView()
         }
         .sheet(isPresented: $viewModel.showingAllActivities) {
             ActivityListView()
@@ -69,19 +72,23 @@ struct DashboardView: View {
             Spacer()
             
             // BOXWALL Logo
-            Text("BOXWALL")
-                .font(BoxWallTypography.headline)
-                .foregroundColor(BoxWallColors.textPrimary)
+            Image(colorScheme == .dark ? "boxwall-logo-white" : "boxwall-logo-black")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 20)
             
             Spacer()
             
             // Using the standalone NotificationButton component
             NotificationButton(count: viewModel.unreadNotifications)
         }
+        .padding(.horizontal)
+        .frame(height: 44)
+        .padding(.top, 47) // Account for status bar height
     }
     
     private var welcomeSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 2) {
             Text("Welcome Back!")
                 .font(BoxWallTypography.title1)
                 .foregroundColor(BoxWallColors.textPrimary)
@@ -91,13 +98,15 @@ struct DashboardView: View {
                 .foregroundColor(BoxWallColors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8) // Add some space after top bar
     }
     
-    private var carouselSection: some View {
+    private var menuSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Layout.spacing) {
             CarouselView(
                 items: viewModel.menuItems,
-                itemHeight: DesignSystem.Layout.BoxHeight.small.value
+                itemWidth: 0.85,
+                itemHeight: 220
             ) { item in
                 DashboardCard(
                     menuItem: item,
@@ -113,18 +122,26 @@ struct DashboardView: View {
                 Text("Recent Activity")
                     .font(BoxWallTypography.title2)
                     .foregroundColor(BoxWallColors.textPrimary)
+                    .padding(.horizontal)
+                
+                Spacer()
                 
                 Button(action: { viewModel.showAllActivities() }) {
                     Text("See All")
                         .font(BoxWallTypography.subheadline)
                         .foregroundColor(BoxWallColors.primary)
                 }
+                .padding(.horizontal)
             }
             
             ActivityList(
                 activities: Array(viewModel.recentActivities.prefix(3)),
                 viewModel: viewModel
             )
+        }
+        .safeAreaInset(edge: .bottom) {
+            Color.clear
+                .frame(height: DesignSystem.Layout.tabBarHeight)
         }
     }
 }

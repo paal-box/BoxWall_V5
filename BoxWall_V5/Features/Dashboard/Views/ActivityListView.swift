@@ -56,15 +56,17 @@ struct ActivityListView: View {
                             removal: .move(edge: .leading)
                         ))
                     
-                    ActivityList(
-                        activities: viewModel.allActivities,
-                        viewModel: viewModel
-                    )
-                    .tag(ActivityTab.activity)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .trailing),
-                        removal: .move(edge: .leading)
-                    ))
+                    ScrollViewReader { proxy in
+                        ActivityList(
+                            activities: viewModel.allActivities,
+                            viewModel: viewModel
+                        )
+                        .tag(ActivityTab.activity)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)
+                        ))
+                    }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
