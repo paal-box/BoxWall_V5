@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct BoxWall_V5App: App {
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(isDarkMode ? .dark : .light)
+                .animation(.easeInOut(duration: 0.3), value: isDarkMode)
         }
     }
 }

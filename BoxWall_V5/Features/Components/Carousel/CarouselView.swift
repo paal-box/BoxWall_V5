@@ -16,13 +16,13 @@ struct CarouselView<Content: View, Item: Identifiable>: View {
     /// Creates a new carousel view
     /// - Parameters:
     ///   - items: Array of items to display
-    ///   - itemWidth: Width of each item relative to screen width (default: 0.75)
+    ///   - itemWidth: Width of each item relative to screen width (default: 0.85)
     ///   - itemHeight: Height of each item
     ///   - spacing: Spacing between items (default: DesignSystem.Layout.spacing)
     ///   - content: Content builder for each item
     init(
         items: [Item],
-        itemWidth: CGFloat = 0.75,
+        itemWidth: CGFloat = 0.85,
         itemHeight: CGFloat,
         spacing: CGFloat = DesignSystem.Layout.spacing,
         @ViewBuilder content: @escaping (Item) -> Content

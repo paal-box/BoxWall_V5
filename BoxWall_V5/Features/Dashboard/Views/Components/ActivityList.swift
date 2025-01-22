@@ -12,13 +12,23 @@ struct ActivityList: View {
     }
     
     var body: some View {
-        VStack(spacing: DesignSystem.Layout.spacing) {
-            ForEach(activities) { activity in
-                ActivityRow(
-                    activity: activity,
-                    viewModel: viewModel
-                )
+        ScrollViewReader { proxy in
+            VStack(spacing: DesignSystem.Layout.spacing) {
+                ForEach(activities) { activity in
+                    ActivityRow(
+                        activity: activity,
+                        viewModel: viewModel,
+                        scrollProxy: proxy
+                    )
+                    .id("activity-\(activity.id)")
+                    .transition(AnyTransition.opacity.combined(with: .move(edge: .leading)))
+                }
+                
+                // Add bottom spacing to account for tab bar
+                Color.clear
+                    .frame(height: DesignSystem.Layout.tabBarHeight)
             }
+            .animation(.easeInOut(duration: 0.3), value: activities.map { $0.id })
         }
     }
 }
@@ -29,5 +39,4 @@ struct ActivityList: View {
         activities: Activity.samples,
         viewModel: DashboardViewModel()
     )
-    .padding()
 } 

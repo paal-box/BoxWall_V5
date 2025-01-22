@@ -27,7 +27,7 @@ struct TabBarButton: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color(.systemGray6) : Color.clear)
+                    .fill(isSelected ? BoxWallColors.secondaryBackground : Color.clear)
                     .animation(.easeInOut(duration: 0.2), value: isSelected)
             )
         }
