@@ -58,54 +58,54 @@ enum BoxWallColors {
     static let gradients = GradientColors()
     
     struct GradientColors {
-        // Shop gradient - Blue to Light Blue (more neutral)
+        // Shop gradient - Blue (subtle left to right)
         let shop = LinearGradient(
             colors: [
                 Color(.systemBlue),
                 Color(.systemBlue).opacity(0.7)
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .leading,
+            endPoint: .trailing
         )
         
-        // Expert gradient - Muted Green to Light
+        // Expert gradient - Orange (subtle left to right)
         let expert = LinearGradient(
             colors: [
-                Brand.greenMuted,
-                Brand.greenLight
+                Color(.systemOrange),
+                Color(.systemOrange).opacity(0.7)
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .leading,
+            endPoint: .trailing
         )
         
-        // Sustainability gradient - Full Green to Muted
+        // Sustainability gradient - Green (subtle left to right)
         let sustainability = LinearGradient(
             colors: [
                 Brand.green,
-                Brand.greenMuted
+                Brand.green.opacity(0.7)
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .leading,
+            endPoint: .trailing
         )
         
-        // Inventory gradient - Blue to Indigo
+        // Inventory gradient - Blue to Indigo (subtle left to right)
         let inventory = LinearGradient(
             colors: [
                 Color(.systemBlue),
-                Color(.systemIndigo).opacity(0.8)
+                Color(.systemBlue).opacity(0.7)
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .leading,
+            endPoint: .trailing
         )
         
-        // News gradient - Red to Purple
+        // News gradient - Red (subtle left to right)
         let news = LinearGradient(
             colors: [
                 Color(.systemRed),
-                Color(.systemPurple).opacity(0.8)
+                Color(.systemRed).opacity(0.7)
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .leading,
+            endPoint: .trailing
         )
     }
 }

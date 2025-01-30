@@ -48,80 +48,53 @@ struct DashboardCard: View {
                     .symbolRenderingMode(.hierarchical)
                     .symbolEffect(.bounce, options: .repeating, value: isHovered)
                     .scaleEffect(iconScale)
-                    .onAppear {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.5).repeatForever(autoreverses: true)) {
-                            iconScale = 1.05
-                        }
-                    }
                 
                 Spacer()
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    // Title with shine effect
+                    // Title
                     Text(menuItem.title)
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .overlay {
-                            if isHovered {
-                                LinearGradient(
-                                    colors: [.white.opacity(0), .white, .white.opacity(0)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                                .frame(width: 40)
-                                .blur(radius: 5)
-                                .offset(x: isHovered ? 200 : -200)
-                                .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: isHovered)
-                            }
-                        }
-                        .clipped()
+                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                     
                     // Description
                     Text(menuItem.description)
-                        .font(.system(size: 17, weight: .regular, design: .rounded))
+                        .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(.white.opacity(0.9))
+                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         .lineLimit(2)
                 }
             }
             .padding(24)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(
                 ZStack {
-                    // Gradient background
+                    // Base gradient
                     getGradient(for: menuItem.type)
+                        .opacity(0.95)
                     
-                    // Animated particles
-                    ForEach(0..<3) { index in
-                        Circle()
-                            .fill(.white.opacity(0.1))
-                            .frame(width: 100, height: 100)
-                            .blur(radius: 20)
-                            .offset(x: isHovered ? [-50, 50, 0][index] : 0,
-                                    y: isHovered ? [-30, 30, 40][index] : 0)
-                            .animation(.easeInOut(duration: [2, 2.5, 3][index]).repeatForever(autoreverses: true), 
-                                     value: isHovered)
-                    }
-                    
-                    // Glass effect
-                    Rectangle()
-                        .fill(.white.opacity(0.1))
-                        .blur(radius: 3)
+                    // Glass effect overlay
+                    Color.white.opacity(0.05)
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 24))
-            .shadow(color: Color(.sRGBLinear, white: 0, opacity: isHovered ? 0.15 : 0.1),
-                    radius: isHovered ? 15 : 10,
-                    x: 0,
-                    y: isHovered ? 8 : 5)
-            .scaleEffect(isPressed ? 0.97 : 1.0)
-            .scaleEffect(isHovered ? 1.02 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
         .onHover { hovering in
             withAnimation {
                 isHovered = hovering
+            }
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.5).repeatForever(autoreverses: true)) {
+                iconScale = 1.05
             }
         }
     }
@@ -141,8 +114,8 @@ struct DashboardCard: View {
         case .reflex:
             return LinearGradient(
                 colors: [Color(hex: "#4158D0"), Color(hex: "#C850C0")],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                startPoint: .leading,
+                endPoint: .trailing
             )
         }
     }

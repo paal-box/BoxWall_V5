@@ -76,9 +76,9 @@ final class NewsViewModel: ObservableObject {
                     if Task.isCancelled { break }
                     
                     do {
-                        print("\nDebug - Parsing article \(index + 1):")
-                        
                         let title = try post.select("h2").first()?.text() ?? ""
+                        let subtitle = try post.select(".post-excerpt").first()?.text()
+                        let content = try post.select(".post-content").first()?.text() ?? ""
                         let dateStr = try post.select(".post-metadata__date").first()?.text() ?? ""
                         
                         var postURL = try post.select("a.blog-link-hover-color").first()?.attr("href")
@@ -105,6 +105,8 @@ final class NewsViewModel: ObservableObject {
                         
                         let article = NewsArticle(
                             title: title,
+                            subtitle: subtitle,
+                            content: content,
                             imageURL: imageURL.flatMap { URL(string: $0) },
                             date: dateFormatter.date(from: dateStr) ?? Date(),
                             webURL: url
@@ -123,7 +125,7 @@ final class NewsViewModel: ObservableObject {
                     articles = NewsArticle.samples
                     errorMessage = "Could not load latest news. Showing sample data."
                 } else {
-                    articles = newsArticles
+                    articles = newsArticles.sorted(by: { $0.date > $1.date })
                 }
                 
             } catch URLError.timedOut {
