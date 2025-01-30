@@ -11,7 +11,7 @@ struct MenuCardItem: Identifiable {
     let type: ItemType
     
     enum ItemType {
-        case shop, expert, sustainability, inventory, news
+        case shop, expert, sustainability, inventory, news, reflex
     }
 }
 
@@ -19,32 +19,38 @@ struct MenuCardItem: Identifiable {
 extension MenuCardItem {
     static let samples: [MenuCardItem] = [
         MenuCardItem(
-            title: "Shop Now",
-            description: "Special offer: 10% off this week",
+            title: "Exclusive Offers",
+            description: "Limited Time: Save 10% This Week!",
             icon: "cart.fill",
             type: .shop
         ),
         MenuCardItem(
-            title: "Ask The Expert",
-            description: "Book a consultation",
+            title: "Expert Guidance",
+            description: "Get Personalized Insights About BoxWall",
             icon: "person.fill",
             type: .expert
         ),
         MenuCardItem(
-            title: "Sustainability",
-            description: "15% reduction in CO2",
+            title: "Track CO₂ Impact",
+            description: "Track Your ESG Impact and CO₂ Savings",
             icon: "leaf.fill",
             type: .sustainability
         ),
         MenuCardItem(
-            title: "Inventory",
-            description: "Check stock levels",
+            title: "Your Wall Inventory",
+            description: "Easily Manage Your Wall Modules",
             icon: "cube.fill",
             type: .inventory
         ),
         MenuCardItem(
-            title: "News",
-            description: "Latest updates and announcements",
+            title: "ReFlex Marketplace",
+            description: "Sell unused modules for cash back and track their CO₂ savings",
+            icon: "arrow.triangle.2.circlepath",
+            type: .reflex
+        ),
+        MenuCardItem(
+            title: "Latest Updates",
+            description: "Stay Informed with BoxWall News",
             icon: "newspaper.fill",
             type: .news
         )

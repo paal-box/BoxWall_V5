@@ -15,15 +15,14 @@ final class UserSettingsViewModel: ObservableObject {
         }
     }
     
-    @AppStorage("isDarkMode") var darkModeEnabled: Bool = false {
-        didSet {
-            updateAppearanceSettings()
-        }
-    }
+    @AppStorage("isDarkMode") var darkModeEnabled: Bool = false
+    @Published var isProcessing = false
     
+    // User Info
     @Published var userName: String
     @Published var userEmail: String
-    @Published var isProcessing = false
+    @Published var profileImage: UIImage?
+    @Published var isLoggedIn: Bool = true // For demo purposes
     
     // MARK: - Initialization
     init() {
@@ -39,13 +38,43 @@ final class UserSettingsViewModel: ObservableObject {
     // MARK: - Settings Methods
     private func updateNotificationSettings() {
         UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
+        // TODO: Update notification settings on server
     }
     
     private func updateEmailSettings() {
         UserDefaults.standard.set(emailNotifications, forKey: "emailNotifications")
+        // TODO: Update email preferences on server
     }
     
-    private func updateAppearanceSettings() {
-        // Dark mode is now handled by @AppStorage
+    // MARK: - Account Management
+    func updateProfilePicture() {
+        // TODO: Implement profile picture update
+    }
+    
+    func logout() async {
+        isProcessing = true
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        // TODO: Implement actual logout
+        isProcessing = false
+        isLoggedIn = false
+    }
+    
+    // MARK: - Data Management
+    func requestData() async {
+        isProcessing = true
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        // TODO: Implement actual data request
+        isProcessing = false
+    }
+    
+    func deleteData() async {
+        isProcessing = true
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        // TODO: Implement actual data deletion
+        isProcessing = false
+        isLoggedIn = false
     }
 } 

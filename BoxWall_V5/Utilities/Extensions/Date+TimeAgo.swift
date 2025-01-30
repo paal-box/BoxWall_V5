@@ -1,6 +1,22 @@
 import Foundation
 
 extension Date {
+    /// Returns a simplified date display string
+    func simpleDateDisplay() -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day], from: self, to: now)
+        
+        if let days = components.day {
+            if days == 0 { return "Today" }
+            if days == 1 { return "Yesterday" }
+            if days <= 5 { return "\(days) days ago" }
+        }
+        
+        // For dates older than 5 days, show just the date
+        return self.formatted(.dateTime.day().month(.defaultDigits))
+    }
+    
     /// Returns a human-readable string representing time passed since this date
     func timeAgoDisplay() -> String {
         let calendar = Calendar.current

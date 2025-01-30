@@ -81,35 +81,14 @@ struct ActivityRow: View {
                                     Circle()
                                         .stroke(Color.white, lineWidth: 1)
                                 )
-                                .offset(x: 14, y: -14)
+                                .offset(x: 12, y: -12)
                         }
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(activity.title)
-                                .font(BoxWallTypography.body)
-                                .foregroundColor(BoxWallColors.textPrimary)
-                            
-                            // Mini Icons for Quick Info
-                            HStack(spacing: 4) {
-                                if activity.actionRequired {
-                                    Image(systemName: "exclamationmark.circle.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(activity.priority.color)
-                                }
-                                if activity.projectNumber != nil {
-                                    Image(systemName: "number.circle.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(BoxWallColors.info)
-                                }
-                                if activity.deadline != nil {
-                                    Image(systemName: "calendar.circle.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(BoxWallColors.primary)
-                                }
-                            }
-                        }
+                        Text(activity.title)
+                            .font(BoxWallTypography.body)
+                            .foregroundColor(BoxWallColors.textPrimary)
                         
                         Text(activity.location)
                             .font(BoxWallTypography.subheadline)
@@ -120,12 +99,12 @@ struct ActivityRow: View {
                     
                     // Time Info
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text(activity.date.timeAgo)
+                        Text(activity.date.simpleDateDisplay())
                             .font(BoxWallTypography.caption)
                             .foregroundColor(BoxWallColors.textSecondary)
                         
                         if let deadline = activity.deadline {
-                            Text(deadline.formatted(date: .abbreviated, time: .omitted))
+                            Text("Due \(deadline.formatted(date: .numeric, time: .omitted))")
                                 .font(BoxWallTypography.caption)
                                 .foregroundColor(activity.priority.color)
                         }
