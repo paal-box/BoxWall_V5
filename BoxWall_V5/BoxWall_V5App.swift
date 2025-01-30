@@ -13,7 +13,7 @@ struct BoxWall_V5App: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView()
                 .preferredColorScheme(isDarkMode ? .dark : .light)
                 .animation(.easeInOut(duration: 0.3), value: isDarkMode)
         }
