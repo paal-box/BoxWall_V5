@@ -56,6 +56,9 @@ struct DashboardView: View {
         .sheet(isPresented: $viewModel.showingAllActivities) {
             ActivityListView()
         }
+        .sheet(isPresented: $viewModel.showingNews) {
+            NewsView()
+        }
     }
     
     // MARK: - View Components
@@ -63,10 +66,13 @@ struct DashboardView: View {
         HStack {
             // User Profile Button
             Button(action: { viewModel.showUserSettings() }) {
-                Image(systemName: "person.circle.fill")
-                    .font(BoxWallTypography.icon(size: 24))
+                Image(systemName: "person.fill")
+                    .font(BoxWallTypography.icon(size: 20))
                     .foregroundColor(BoxWallColors.textPrimary)
                     .symbolRenderingMode(.hierarchical)
+                    .frame(width: 32, height: 32)
+                    .background(BoxWallColors.textSecondary.opacity(0.1))
+                    .clipShape(Circle())
             }
             
             Spacer()
@@ -88,17 +94,17 @@ struct DashboardView: View {
     }
     
     private var welcomeSection: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("Welcome Back!")
-                .font(BoxWallTypography.title1)
+        VStack(alignment: .leading, spacing: 1) {
+            Text("Hi \(viewModel.userName.components(separatedBy: " ").first ?? "")")
+                .font(BoxWallTypography.headline)
                 .foregroundColor(BoxWallColors.textPrimary)
             
             Text("Here's your BoxWall overview")
-                .font(BoxWallTypography.body)
+                .font(BoxWallTypography.caption)
                 .foregroundColor(BoxWallColors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 8) // Add some space after top bar
+        .padding(.top, 4)
     }
     
     private var menuSection: some View {

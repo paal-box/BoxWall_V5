@@ -6,7 +6,18 @@ class DashboardViewModel: ObservableObject {
     @Published var menuItems: [MenuCardItem] = MenuCardItem.samples
     @Published var showingUserSettings = false
     @Published var showingAllActivities = false
+    @Published var showingNews = false
+    @Published var showingReFlex = false
     @Published var unreadNotifications = 2
+    
+    // User Info
+    @Published var userName: String
+    
+    init() {
+        // Initialize with user info from UserSettings
+        let userSettings = UserSettingsViewModel()
+        self.userName = userSettings.userName
+    }
     
     var allActivities: [Activity] {
         Activity.samples  // Later this will fetch from a data source
@@ -43,8 +54,9 @@ class DashboardViewModel: ObservableObject {
             // Handle inventory action
             break
         case .news:
-            // Handle news action
-            break
+            showingNews = true
+        case .reflex:
+            showingReFlex = true
         }
     }
 }
@@ -57,6 +69,7 @@ extension DashboardViewModel {
         case sustainability
         case inventory
         case news
+        case reflex
         
         init?(from type: MenuCardItem.ItemType) {
             switch type {
@@ -65,6 +78,7 @@ extension DashboardViewModel {
             case .sustainability: self = .sustainability
             case .inventory: self = .inventory
             case .news: self = .news
+            case .reflex: self = .reflex
             }
         }
     }
