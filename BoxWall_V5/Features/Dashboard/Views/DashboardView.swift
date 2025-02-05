@@ -6,6 +6,8 @@ struct DashboardView: View {
     @StateObject private var newsViewModel = NewsViewModel()
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    let switchToShop: () -> Void
+    let switchToCO2: () -> Void
     
     // MARK: - Computed Properties
     private var isIPad: Bool {
@@ -20,6 +22,21 @@ struct DashboardView: View {
         isIPad ? DesignSystem.Layout.paddingLarge : DesignSystem.Layout.paddingMedium
     }
     
+    private var gridColumns: [GridItem] {
+        if isIPad {
+            [
+                GridItem(.flexible(), spacing: 24),
+                GridItem(.flexible(), spacing: 24)
+            ]
+        } else {
+            [GridItem(.flexible())]
+        }
+    }
+    
+    private var menuItemHeight: CGFloat {
+        isIPad ? 220 : 180
+    }
+    
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -29,41 +46,100 @@ struct DashboardView: View {
                     .ignoresSafeArea()
                 
                 // Content
-                VStack(spacing: DesignSystem.Layout.paddingSmall) {
-                    // Top Bar
-                    topBar
-                    
-                    // Main Content
+                ScrollView {
                     VStack(spacing: DesignSystem.Layout.paddingSmall) {
-                        welcomeSection
-                            .padding(.top, 8)
+                        // Top Bar
+                        topBar
                         
-                        // Quick Actions Carousel
-                        menuSection
-                        
-                        // Recent Activity
-                        VStack(alignment: .leading, spacing: DesignSystem.Layout.paddingSmall) {
-                            HStack {
-                                Text("Recent Activity")
-                                    .font(BoxWallTypography.title2)
-                                    .foregroundColor(BoxWallColors.textPrimary)
-                                
-                                Spacer()
-                                
-                                Button(action: { viewModel.showAllActivities() }) {
-                                    Text("See All")
-                                        .font(BoxWallTypography.subheadline)
-                                        .foregroundColor(BoxWallColors.primary)
+                        // Main Content
+                        VStack(spacing: DesignSystem.Layout.paddingSmall) {
+                            welcomeSection
+                                .padding(.top, 8)
+                            
+                            // Quick Actions Section
+                            if isIPad {
+                                // Grid layout for iPad
+                                LazyVGrid(columns: gridColumns, spacing: 24) {
+                                    ForEach(viewModel.menuItems) { item in
+                                        DashboardCard(
+                                            menuItem: item,
+                                            action: { 
+                                                switch item.type {
+                                                case .shop:
+                                                    switchToShop()
+                                                case .sustainability:
+                                                    switchToCO2()
+                                                default:
+                                                    viewModel.handleMenuAction(for: item)
+                                                }
+                                            }
+                                        )
+                                        .frame(height: menuItemHeight)
+                                    }
                                 }
+                                .padding(.horizontal, horizontalPadding)
+                            } else {
+                                // Carousel for iPhone
+                                CarouselView.dashboard(
+                                    items: viewModel.menuItems,
+                                    onItemSelected: { item in
+                                        switch item.type {
+                                        case .shop:
+                                            switchToShop()
+                                        case .sustainability:
+                                            switchToCO2()
+                                        default:
+                                            viewModel.handleMenuAction(for: item)
+                                        }
+                                    }
+                                )
+                                .padding(.bottom, 4)
                             }
                             
-                            ActivityList(
-                                activities: Array(viewModel.recentActivities.prefix(3)),
-                                viewModel: viewModel
-                            )
+                            // Recent Activity
+                            VStack(alignment: .leading, spacing: DesignSystem.Layout.paddingSmall) {
+                                HStack {
+                                    Text("Recent Activity")
+                                        .font(isIPad ? .title2 : .system(size: 24, weight: .bold))
+                                        .foregroundColor(BoxWallColors.textPrimary)
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: { viewModel.showAllActivities() }) {
+                                        Text("See All")
+                                            .font(.system(size: 17))
+                                            .foregroundColor(BoxWallColors.Brand.green)
+                                    }
+                                }
+                                .padding(.bottom, 4)
+                                
+                                if isIPad {
+                                    // Grid layout for activities on iPad
+                                    ScrollView {
+                                        ScrollViewReader { proxy in
+                                            LazyVGrid(columns: gridColumns, spacing: 16) {
+                                                ForEach(Array(viewModel.recentActivities.prefix(4))) { activity in
+                                                    ActivityRow(
+                                                        activity: activity,
+                                                        viewModel: viewModel,
+                                                        scrollProxy: proxy
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // Stack layout for iPhone
+                                    ActivityList(
+                                        activities: Array(viewModel.recentActivities.prefix(3)),
+                                        viewModel: viewModel
+                                    )
+                                }
+                            }
+                            .padding(.top, 16)
                         }
+                        .padding(.horizontal, horizontalPadding)
                     }
-                    .padding(.horizontal, DesignSystem.Layout.paddingMedium)
                 }
                 
                 // Top safe area overlay with blur
@@ -74,13 +150,19 @@ struct DashboardView: View {
             }
         }
         .sheet(isPresented: $viewModel.showingUserSettings) {
-            UserSettingsView()
+            NavigationStack {
+                UserSettingsView()
+            }
         }
         .sheet(isPresented: $viewModel.showingAllActivities) {
-            ActivityListView()
+            NavigationStack {
+                ActivityListView(viewModel: viewModel)
+            }
         }
         .sheet(isPresented: $viewModel.showingNews) {
-            NewsView()
+            NavigationStack {
+                NewsView()
+            }
         }
     }
     
@@ -89,7 +171,7 @@ struct DashboardView: View {
         HStack {
             Button(action: { viewModel.showUserSettings() }) {
                 Image(systemName: "person.circle.fill")
-                    .font(BoxWallTypography.icon(size: 24))
+                    .font(BoxWallTypography.icon(size: 28))
                     .foregroundColor(BoxWallColors.textPrimary)
                     .symbolRenderingMode(.hierarchical)
             }
@@ -105,7 +187,7 @@ struct DashboardView: View {
             
             NotificationButton(count: viewModel.unreadNotifications)
         }
-        .padding(.horizontal, DesignSystem.Layout.paddingMedium)
+        .padding(.horizontal, horizontalPadding)
         .frame(height: 44)
         .padding(.top, 24)
     }
@@ -113,7 +195,7 @@ struct DashboardView: View {
     private var welcomeSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Welcome Back!")
-                .font(BoxWallTypography.title2)
+                .font(isIPad ? .title : BoxWallTypography.title2)
                 .foregroundColor(BoxWallColors.textPrimary)
             
             Text("Here's your BoxWall overview")
@@ -121,16 +203,6 @@ struct DashboardView: View {
                 .foregroundColor(BoxWallColors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    private var menuSection: some View {
-        CarouselView.dashboard(
-            items: viewModel.menuItems,
-            onItemSelected: { item in
-                viewModel.handleMenuAction(for: item)
-            }
-        )
-        .padding(.bottom, 4)  // Add a little space before Recent Activity
     }
     
     private var newsSection: some View {
@@ -171,7 +243,7 @@ struct DashboardView: View {
 
 // MARK: - Preview
 #Preview {
-    DashboardView()
+    DashboardView(switchToShop: {}, switchToCO2: {})
 }
 
 // Preference Key for scroll tracking

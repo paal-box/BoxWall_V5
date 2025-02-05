@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ActivityListView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = DashboardViewModel()
+    @ObservedObject var viewModel: DashboardViewModel
     @State private var selectedTab: ActivityTab = .notifications
     @Namespace private var animation
     

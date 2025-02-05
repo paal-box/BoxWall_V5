@@ -13,6 +13,7 @@ struct TabBar: View {
         static let home = TabBarItem(icon: "house.fill", title: "Home")
         static let shop = TabBarItem(icon: "cart.fill", title: "Shop")
         static let projects = TabBarItem(icon: "folder.fill", title: "Projects")
+        static let co2 = TabBarItem(icon: "leaf.fill", title: "CO₂")
         // Add more standard tabs as needed
     }
     
@@ -23,7 +24,7 @@ struct TabBar: View {
     /// - Parameters:
     ///   - selectedTab: Binding to the selected tab index
     ///   - tabs: Array of tab items to display
-    init(selectedTab: Binding<Int>, tabs: [TabBarItem] = [.home, .shop, .projects]) {
+    init(selectedTab: Binding<Int>, tabs: [TabBarItem] = [.home, .shop, .projects, .co2]) {
         self._selectedTab = selectedTab
         self.tabs = tabs
     }

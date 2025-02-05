@@ -11,7 +11,6 @@ struct DashboardCard: View {
     
     @State private var isHovered = false
     @State private var isPressed = false
-    @State private var iconScale: CGFloat = 1
     
     private var iconConfig: (size: CGFloat, weight: Font.Weight) {
         switch menuItem.type {
@@ -46,8 +45,8 @@ struct DashboardCard: View {
                     .font(.system(size: iconConfig.size, weight: iconConfig.weight))
                     .foregroundColor(.white)
                     .symbolRenderingMode(.hierarchical)
-                    .symbolEffect(.bounce, options: .repeating, value: isHovered)
-                    .scaleEffect(iconScale)
+                    .scaleEffect(isHovered ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                     .padding(.bottom, 8)
                 
                 Spacer()
@@ -67,6 +66,22 @@ struct DashboardCard: View {
                         .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
+                    
+                    // Additional Info (if available)
+                    if let additionalInfo = menuItem.additionalInfo {
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(additionalInfo, id: \.self) { info in
+                                Text(info)
+                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.95))
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .background(.white.opacity(0.2))
+                                    .cornerRadius(4)
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
                 }
             }
             .padding(20)
@@ -109,11 +124,6 @@ struct DashboardCard: View {
                 isHovered = hovering
             }
         }
-        .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.5).repeatForever(autoreverses: true)) {
-                iconScale = 1.05
-            }
-        }
     }
     
     private func getGradient(for type: MenuCardItem.ItemType) -> LinearGradient {
@@ -140,9 +150,9 @@ struct DashboardCard: View {
 
 #Preview {
     DashboardCard(
-        menuItem: MenuCardItem.samples[0],
+        menuItem: MenuCardItem.samples[2],  // Using the sustainability card for preview
         action: {}
     )
-    .frame(height: 160)
+    .frame(height: 220)
     .padding()
 } 

@@ -9,6 +9,7 @@ struct MenuCardItem: Identifiable {
     let description: String
     let icon: String
     let type: ItemType
+    var additionalInfo: [String]?
     
     enum ItemType {
         case shop, expert, sustainability, inventory, news, reflex
@@ -34,7 +35,11 @@ extension MenuCardItem {
             title: "Track CO₂ Impact",
             description: "Track Your ESG Impact and CO₂ Savings",
             icon: "leaf.fill",
-            type: .sustainability
+            type: .sustainability,
+            additionalInfo: [
+                "🌳 \(EnvironmentalImpact(co2InKg: 5475.0).treesEquivalent) Trees Planted",
+                "🚗 \(String(format: "%.1f", EnvironmentalImpact(co2InKg: 5475.0).carsPerDay)) Cars Off Road/Day"
+            ]
         ),
         MenuCardItem(
             title: "Your Wall Inventory",

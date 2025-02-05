@@ -46,6 +46,8 @@ enum BoxWallColors {
     static let groupedBackground = Color(.systemGroupedBackground)
     /// Subtle green tint for branded sections
     static let brandedBackground = Brand.greenLight
+    /// Card background color that adapts to color scheme
+    static let cardBackground = Color(.tertiarySystemBackground)
     
     // MARK: - Semantic Aliases (for better context)
     static let shopNow = primary

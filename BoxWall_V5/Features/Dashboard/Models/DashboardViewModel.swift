@@ -42,13 +42,13 @@ class DashboardViewModel: ObservableObject {
     func handleMenuAction(for item: MenuCardItem) {
         switch item.type {
         case .shop:
-            // Handle shop action
+            // Shop is now handled by TabView
             break
         case .expert:
             // Expert guidance removed
             break
         case .sustainability:
-            // Handle sustainability action
+            // CO2 Impact is now handled by TabView
             break
         case .inventory:
             // Handle inventory action
@@ -56,7 +56,8 @@ class DashboardViewModel: ObservableObject {
         case .news:
             showingNews = true
         case .reflex:
-            showingReFlex = true
+            // ReFlex feature not implemented yet
+            break
         }
     }
 }
@@ -64,18 +65,16 @@ class DashboardViewModel: ObservableObject {
 // MARK: - Navigation
 extension DashboardViewModel {
     enum NavigationRoute {
-        case shop
         case expert
-        case sustainability
         case inventory
         case news
         case reflex
         
         init?(from type: MenuCardItem.ItemType) {
             switch type {
-            case .shop: self = .shop
+            case .shop: return nil // Shop is now handled by TabView
+            case .sustainability: return nil // CO2 is now handled by TabView
             case .expert: self = .expert
-            case .sustainability: self = .sustainability
             case .inventory: self = .inventory
             case .news: self = .news
             case .reflex: self = .reflex

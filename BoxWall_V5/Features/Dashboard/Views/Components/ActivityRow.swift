@@ -31,7 +31,6 @@ struct ActivityRow: View {
     @StateObject private var viewModel: DashboardViewModel
     @State private var isExpanded = false
     @State private var showingContactSheet = false
-    @Namespace private var animation
     let scrollProxy: ScrollViewProxy
     
     // Add tab bar height constant
@@ -44,139 +43,108 @@ struct ActivityRow: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             // Main Card Content
             Button(action: {
-                withAnimation(.spring()) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     isExpanded.toggle()
-                }
-                
-                if isExpanded {
-                    // Scroll the expanded card into view with a slight delay
-                    // to allow animation to start
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation {
-                            scrollProxy.scrollTo("activity-\(activity.id)", anchor: .center)
+                    
+                    // Only scroll if expanding and after a slight delay
+                    if isExpanded {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                scrollProxy.scrollTo("activity-\(activity.id)", anchor: .center)
+                            }
                         }
                     }
                 }
             }) {
                 HStack(spacing: 16) {
-                    // Activity Icon with Status
-                    ZStack {
-                        Circle()
-                            .fill(activity.type.color.opacity(0.1))
-                            .frame(width: 40, height: 40)
-                        
-                        Image(systemName: activity.type.icon)
-                            .font(BoxWallTypography.icon(size: 16))
-                            .foregroundColor(activity.type.color)
-                        
-                        // Priority Indicator
-                        if activity.actionRequired {
-                            Circle()
-                                .fill(activity.priority.color)
-                                .frame(width: 8, height: 8)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white, lineWidth: 1)
-                                )
-                                .offset(x: 12, y: -12)
-                        }
-                    }
+                    // Activity Icon
+                    Image(systemName: activity.type.icon)
+                        .font(.system(size: 20))
+                        .foregroundColor(activity.type.color)
+                        .frame(width: 32)
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(activity.title)
-                            .font(BoxWallTypography.body)
+                            .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(BoxWallColors.textPrimary)
                         
                         Text(activity.location)
-                            .font(BoxWallTypography.subheadline)
+                            .font(.system(size: 15))
                             .foregroundColor(BoxWallColors.textSecondary)
                     }
                     
                     Spacer()
                     
                     // Time Info
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text(activity.date.simpleDateDisplay())
-                            .font(BoxWallTypography.caption)
-                            .foregroundColor(BoxWallColors.textSecondary)
-                        
-                        if let deadline = activity.deadline {
-                            Text("Due \(deadline.formatted(date: .numeric, time: .omitted))")
-                                .font(BoxWallTypography.caption)
-                                .foregroundColor(activity.priority.color)
-                        }
-                    }
-                    
-                    // Expand/Collapse Indicator
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
+                    Text(activity.date.timeAgoDisplay())
+                        .font(.system(size: 15))
                         .foregroundColor(BoxWallColors.textSecondary)
-                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
-            .padding(12)
-            .background(BoxWallColors.background)
-            .accessibilityIdentifier("activity-\(activity.id)")
+            .buttonStyle(.plain)
             
             // Expanded Content
             if isExpanded {
-                VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 16) {
                     // Description
                     Text(activity.description)
-                        .font(BoxWallTypography.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(BoxWallColors.textPrimary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 8)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     
                     // Project Info if available
                     if let projectNumber = activity.projectNumber {
                         HStack {
-                            Label("Project #\(projectNumber)", systemImage: "folder")
-                                .font(BoxWallTypography.caption)
+                            Text("Project #\(projectNumber)")
+                                .font(.system(size: 13))
                             Spacer()
                             Button("View Project") {
                                 // Navigate to project
                             }
-                            .font(BoxWallTypography.caption)
-                            .foregroundColor(BoxWallColors.primary)
+                            .font(.system(size: 13))
+                            .foregroundColor(BoxWallColors.Brand.green)
                         }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                     
                     // Action Buttons
                     HStack(spacing: 12) {
                         // Contact Button
                         Button(action: { showingContactSheet = true }) {
-                            Label("Contact Support", systemImage: "message")
-                                .font(BoxWallTypography.caption)
+                            Text("Contact Support")
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(BoxWallColors.primary)
+                                .background(BoxWallColors.Brand.green)
                                 .cornerRadius(8)
                         }
                         
                         // Mark as Done Button
                         Button(action: {}) {
-                            Label("Mark Done", systemImage: "checkmark")
-                                .font(BoxWallTypography.caption)
-                                .foregroundColor(BoxWallColors.primary)
+                            Text("Mark Done")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(BoxWallColors.Brand.green)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(BoxWallColors.primary.opacity(0.1))
+                                .background(BoxWallColors.Brand.greenLight)
                                 .cornerRadius(8)
                         }
                     }
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
-                .padding(12)
-                .background(BoxWallColors.background)
+                .padding(.horizontal, 48)
+                .padding(.bottom, 16)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.05), radius: 5, x: 0, y: 2)
-        .animation(.spring(), value: isExpanded)
-        .padding(.horizontal)
+        .background(BoxWallColors.background)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExpanded)
         .sheet(isPresented: $showingContactSheet) {
             ContactSupportView(
                 activity: activity,
