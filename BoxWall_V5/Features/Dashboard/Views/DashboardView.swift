@@ -6,7 +6,6 @@ struct DashboardView: View {
     @StateObject private var newsViewModel = NewsViewModel()
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var scrollOffset: CGFloat = 0
     
     // MARK: - Computed Properties
     private var isIPad: Bool {
@@ -23,120 +22,56 @@ struct DashboardView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack(alignment: .top) {
-            ScrollView {
-                VStack(spacing: 0) {
+        NavigationStack {
+            ZStack(alignment: .top) {
+                // Main background
+                BoxWallColors.background
+                    .ignoresSafeArea()
+                
+                // Content
+                VStack(spacing: DesignSystem.Layout.paddingSmall) {
                     // Top Bar
                     topBar
-                        .padding(.horizontal, horizontalPadding)
-                        .background(
-                            BoxWallColors.background
-                                .ignoresSafeArea()
-                        )
                     
-                    if isIPad {
-                        // iPad Layout
-                        VStack(spacing: DesignSystem.Layout.paddingLarge) {
-                            // Welcome Section
-                            welcomeSection
-                                .padding(.top, DesignSystem.Layout.paddingMedium)
-                            
-                            // Quick Actions Carousel - Full Width
-                            VStack(alignment: .leading, spacing: DesignSystem.Layout.paddingMedium) {
-                                Text("Quick Actions")
+                    // Main Content
+                    VStack(spacing: DesignSystem.Layout.paddingSmall) {
+                        welcomeSection
+                            .padding(.top, 8)
+                        
+                        // Quick Actions Carousel
+                        menuSection
+                        
+                        // Recent Activity
+                        VStack(alignment: .leading, spacing: DesignSystem.Layout.paddingSmall) {
+                            HStack {
+                                Text("Recent Activity")
                                     .font(BoxWallTypography.title2)
                                     .foregroundColor(BoxWallColors.textPrimary)
                                 
-                                menuSection
+                                Spacer()
+                                
+                                Button(action: { viewModel.showAllActivities() }) {
+                                    Text("See All")
+                                        .font(BoxWallTypography.subheadline)
+                                        .foregroundColor(BoxWallColors.primary)
+                                }
                             }
                             
-                            // Two Column Layout
-                            HStack(alignment: .top, spacing: DesignSystem.Layout.paddingLarge) {
-                                // Recent Activity - Left Column
-                                VStack {
-                                    activitySection
-                                }
-                                .frame(maxWidth: .infinity)
-                                .background(BoxWallColors.background)
-                                .cornerRadius(DesignSystem.Layout.cornerRadius)
-                                
-                                // News Feed - Right Column
-                                VStack(alignment: .leading, spacing: DesignSystem.Layout.spacing) {
-                                    HStack {
-                                        Text("Latest News")
-                                            .font(BoxWallTypography.title2)
-                                            .foregroundColor(BoxWallColors.textPrimary)
-                                        
-                                        Spacer()
-                                        
-                                        Button(action: { viewModel.showingNews = true }) {
-                                            Text("See All")
-                                                .font(BoxWallTypography.subheadline)
-                                                .foregroundColor(BoxWallColors.primary)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                    
-                                    if newsViewModel.isLoading {
-                                        ProgressView()
-                                            .frame(maxWidth: .infinity, minHeight: 200)
-                                    } else {
-                                        ScrollView {
-                                            LazyVStack(spacing: DesignSystem.Layout.spacing) {
-                                                ForEach(newsViewModel.articles.prefix(5)) { article in
-                                                    NewsArticleCard(article: article)
-                                                        .onTapGesture {
-                                                            newsViewModel.openArticle(article)
-                                                        }
-                                                }
-                                            }
-                                            .padding(.horizontal)
-                                        }
-                                        .frame(maxHeight: 600) // Limit height for iPad
-                                    }
-                                }
-                                .frame(maxWidth: .infinity)
-                                .background(BoxWallColors.background)
-                                .cornerRadius(DesignSystem.Layout.cornerRadius)
-                            }
+                            ActivityList(
+                                activities: Array(viewModel.recentActivities.prefix(3)),
+                                viewModel: viewModel
+                            )
                         }
-                        .padding(.horizontal, horizontalPadding)
-                    } else {
-                        // iPhone Layout
-                        welcomeSection
-                            .padding(.horizontal)
-                            .padding(.top, DesignSystem.Layout.paddingSmall)
-                        
-                        menuSection
-                            .padding(.top, DesignSystem.Layout.paddingMedium)
-                        
-                        activitySection
-                            .padding(.top, DesignSystem.Layout.paddingMedium)
-                            .safeAreaInset(edge: .bottom) {
-                                Color.clear
-                                    .frame(height: DesignSystem.Layout.tabBarHeight)
-                            }
                     }
+                    .padding(.horizontal, DesignSystem.Layout.paddingMedium)
                 }
-                .frame(maxWidth: contentMaxWidth)
-                .frame(maxWidth: .infinity)
-                .background(GeometryReader { proxy in
-                    Color.clear.preference(
-                        key: ScrollOffsetPreferenceKey.self,
-                        value: proxy.frame(in: .named("scroll")).minY
-                    )
-                })
+                
+                // Top safe area overlay with blur
+                BoxWallColors.background
+                    .frame(height: 47)
+                    .background(.ultraThinMaterial)
+                    .ignoresSafeArea()
             }
-            .coordinateSpace(name: "scroll")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                scrollOffset = value
-            }
-            .background(BoxWallColors.groupedBackground.ignoresSafeArea())
-            
-            // Black status bar overlay
-            Color.black
-                .frame(height: 47) // Status bar height
-                .ignoresSafeArea()
         }
         .sheet(isPresented: $viewModel.showingUserSettings) {
             UserSettingsView()
@@ -152,84 +87,85 @@ struct DashboardView: View {
     // MARK: - View Components
     private var topBar: some View {
         HStack {
-            // User Profile Button
             Button(action: { viewModel.showUserSettings() }) {
                 Image(systemName: "person.circle.fill")
-                    .font(BoxWallTypography.icon(size: isIPad ? 28 : 24))
+                    .font(BoxWallTypography.icon(size: 24))
                     .foregroundColor(BoxWallColors.textPrimary)
                     .symbolRenderingMode(.hierarchical)
             }
             
             Spacer()
             
-            // BOXWALL Logo
             Image(colorScheme == .dark ? "boxwall-logo-white" : "boxwall-logo-black")
                 .resizable()
                 .scaledToFit()
-                .frame(height: isIPad ? 38 : 24)
-                .padding(.vertical, isIPad ? 8 : 4)
+                .frame(height: 24)
             
             Spacer()
             
-            // Using the standalone NotificationButton component
             NotificationButton(count: viewModel.unreadNotifications)
         }
-        .padding(.horizontal)
-        .frame(height: isIPad ? 70 : 44)
-        .padding(.top, 47) // Account for status bar height
+        .padding(.horizontal, DesignSystem.Layout.paddingMedium)
+        .frame(height: 44)
+        .padding(.top, 24)
     }
     
     private var welcomeSection: some View {
-        VStack(alignment: .leading, spacing: isIPad ? 4 : 2) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Welcome Back!")
-                .font(isIPad ? BoxWallTypography.title1 : BoxWallTypography.headline)
+                .font(BoxWallTypography.title2)
                 .foregroundColor(BoxWallColors.textPrimary)
             
             Text("Here's your BoxWall overview")
-                .font(isIPad ? BoxWallTypography.subheadline : BoxWallTypography.caption)
+                .font(BoxWallTypography.subheadline)
                 .foregroundColor(BoxWallColors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, isIPad ? 8 : 4)
     }
     
     private var menuSection: some View {
-        CarouselView(
+        CarouselView.dashboard(
             items: viewModel.menuItems,
-            itemWidth: isIPad ? 0.3 : 0.85,
-            itemHeight: isIPad ? 280 : 220
-        ) { item in
-            DashboardCard(
-                menuItem: item,
-                action: { viewModel.handleMenuAction(for: item) }
-            )
-        }
+            onItemSelected: { item in
+                viewModel.handleMenuAction(for: item)
+            }
+        )
+        .padding(.bottom, 4)  // Add a little space before Recent Activity
     }
     
-    private var activitySection: some View {
+    private var newsSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Layout.spacing) {
             HStack {
-                Text("Recent Activity")
+                Text("Latest News")
                     .font(BoxWallTypography.title2)
                     .foregroundColor(BoxWallColors.textPrimary)
-                    .padding(.horizontal)
                 
                 Spacer()
                 
-                Button(action: { viewModel.showAllActivities() }) {
+                Button(action: { viewModel.showingNews = true }) {
                     Text("See All")
                         .font(BoxWallTypography.subheadline)
                         .foregroundColor(BoxWallColors.primary)
                 }
-                .padding(.horizontal)
             }
             
-            ActivityList(
-                activities: Array(viewModel.recentActivities.prefix(isIPad ? 8 : 3)),
-                viewModel: viewModel
-            )
+            if newsViewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 200)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: DesignSystem.Layout.spacing) {
+                        ForEach(newsViewModel.articles.prefix(5)) { article in
+                            NewsArticleCard(article: article)
+                                .onTapGesture {
+                                    newsViewModel.openArticle(article)
+                                }
+                        }
+                    }
+                }
+                .frame(maxHeight: 600)
+            }
         }
-        .padding(.vertical, isIPad ? DesignSystem.Layout.paddingMedium : 0)
     }
 }
 

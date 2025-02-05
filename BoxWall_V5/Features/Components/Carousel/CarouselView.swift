@@ -12,6 +12,9 @@ struct CarouselView<Content: View, Item: Identifiable>: View {
     let spacing: CGFloat
     /// Content builder for each item
     let content: (Item) -> Content
+    @State private var currentIndex: Int = 0
+    @State private var offset: CGFloat = 0
+    @State private var scrollViewWidth: CGFloat = 0
     
     /// Creates a new carousel view
     /// - Parameters:
@@ -35,19 +38,82 @@ struct CarouselView<Content: View, Item: Identifiable>: View {
     }
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: spacing) {
-                ForEach(items) { item in
-                    content(item)
-                        .frame(
-                            width: UIScreen.main.bounds.width * itemWidth,
-                            height: itemHeight
+        VStack(spacing: DesignSystem.Layout.spacing) {
+            GeometryReader { geometry in
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: spacing) {
+                            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                                content(item)
+                                    .frame(
+                                        width: UIScreen.main.bounds.width * itemWidth,
+                                        height: itemHeight
+                                    )
+                                    .id(index)
+                            }
+                        }
+                        .padding(.horizontal, DesignSystem.Layout.paddingMedium)
+                        .background(
+                            GeometryReader { proxy in
+                                Color.clear.preference(
+                                    key: ScrollOffsetPreferenceKey.self,
+                                    value: proxy.frame(in: .named("scroll")).minX
+                                )
+                            }
                         )
+                    }
+                    .coordinateSpace(name: "scroll")
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                        let screenWidth = UIScreen.main.bounds.width
+                        let itemTotalWidth = screenWidth * itemWidth + spacing
+                        let estimatedIndex = -Int((value - DesignSystem.Layout.paddingMedium) / itemTotalWidth)
+                        
+                        if estimatedIndex != currentIndex {
+                            currentIndex = max(0, min(estimatedIndex, items.count - 1))
+                        }
+                    }
+                    .onAppear {
+                        scrollViewWidth = geometry.size.width
+                    }
+                    .simultaneousGesture(
+                        DragGesture()
+                            .onEnded { value in
+                                let screenWidth = UIScreen.main.bounds.width
+                                let itemTotalWidth = screenWidth * itemWidth + spacing
+                                let predictedOffset = value.predictedEndLocation.x - value.location.x
+                                
+                                if abs(predictedOffset) > itemTotalWidth / 3 {
+                                    let newIndex = predictedOffset < 0 
+                                        ? min(currentIndex + 1, items.count - 1)
+                                        : max(currentIndex - 1, 0)
+                                    
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        proxy.scrollTo(newIndex, anchor: .center)
+                                        currentIndex = newIndex
+                                    }
+                                } else {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        proxy.scrollTo(currentIndex, anchor: .center)
+                                    }
+                                }
+                            }
+                    )
                 }
             }
-            .padding(.horizontal, DesignSystem.Layout.paddingMedium)
+            .frame(height: itemHeight)
+            
+            // Page Indicators
+            HStack(spacing: 8) {
+                ForEach(0..<items.count, id: \.self) { index in
+                    Circle()
+                        .fill(index == currentIndex 
+                            ? BoxWallColors.primary 
+                            : BoxWallColors.textSecondary.opacity(0.3))
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .padding(.top, 4)
         }
-        .scrollIndicators(.hidden)
     }
 }
 
@@ -93,7 +159,9 @@ extension CarouselView where Item == MenuCardItem, Content == DashboardCard {
     ) -> CarouselView {
         CarouselView(
             items: items,
-            itemHeight: DesignSystem.Layout.BoxHeight.small.value
+            itemWidth: 0.80,
+            itemHeight: 180,
+            spacing: 16
         ) { item in
             DashboardCard(
                 menuItem: item,

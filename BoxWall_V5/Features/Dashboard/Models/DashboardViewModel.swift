@@ -45,7 +45,7 @@ class DashboardViewModel: ObservableObject {
             // Handle shop action
             break
         case .expert:
-            // Handle expert action
+            // Expert guidance removed
             break
         case .sustainability:
             // Handle sustainability action

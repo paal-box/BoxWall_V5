@@ -25,8 +25,8 @@ extension MenuCardItem {
             type: .shop
         ),
         MenuCardItem(
-            title: "Expert Guidance",
-            description: "Get Personalized Insights About BoxWall",
+            title: "Talk to BoxWall",
+            description: "Schedule a meeting with our experts and get personalized guidance",
             icon: "person.fill",
             type: .expert
         ),
