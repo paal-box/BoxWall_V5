@@ -31,6 +31,7 @@ struct ActivityRow: View {
     @StateObject private var viewModel: DashboardViewModel
     @State private var isExpanded = false
     @State private var showingContactSheet = false
+    @State private var showingContactSupport = false
     let scrollProxy: ScrollViewProxy
     
     // Add tab bar height constant
@@ -116,7 +117,7 @@ struct ActivityRow: View {
                     // Action Buttons
                     HStack(spacing: 12) {
                         // Contact Button
-                        Button(action: { showingContactSheet = true }) {
+                        Button(action: { showingContactSupport = true }) {
                             Text("Contact Support")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white)
@@ -145,11 +146,8 @@ struct ActivityRow: View {
         }
         .background(BoxWallColors.background)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExpanded)
-        .sheet(isPresented: $showingContactSheet) {
-            ContactSupportView(
-                activity: activity,
-                viewModel: viewModel
-            )
+        .sheet(isPresented: $showingContactSupport) {
+            ContactSupportView(activity: activity)
         }
     }
 }

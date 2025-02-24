@@ -85,11 +85,11 @@ struct CO2Components {
     
     // MARK: - Time Frame Selector
     struct TimeFrameSelector: View {
-        @Binding var selectedTimeframe: CO2ViewModel.TimeFrame
+        @Binding var selectedTimeframe: TimeFrame
         
         var body: some View {
             Picker("Time Frame", selection: $selectedTimeframe) {
-                ForEach(CO2ViewModel.TimeFrame.allCases, id: \.self) { timeframe in
+                ForEach(TimeFrame.allCases, id: \.self) { timeframe in
                     Text(timeframe.rawValue)
                         .tag(timeframe)
                 }

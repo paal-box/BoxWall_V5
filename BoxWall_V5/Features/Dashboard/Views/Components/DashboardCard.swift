@@ -40,47 +40,100 @@ struct DashboardCard: View {
             }
         }) {
             VStack(alignment: .leading, spacing: 0) {
-                // Icon with animation
-                Image(systemName: menuItem.icon)
-                    .font(.system(size: iconConfig.size, weight: iconConfig.weight))
-                    .foregroundColor(.white)
-                    .symbolRenderingMode(.hierarchical)
-                    .scaleEffect(isHovered ? 1.1 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                    .padding(.bottom, 8)
-                
-                Spacer()
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    // Title
-                    Text(menuItem.title)
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                        .lineLimit(1)
-                    
-                    // Description
-                    Text(menuItem.description)
-                        .font(.system(size: 15, weight: .regular, design: .rounded))
-                        .foregroundColor(.white.opacity(0.9))
-                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Additional Info (if available)
-                    if let additionalInfo = menuItem.additionalInfo {
-                        VStack(alignment: .leading, spacing: 4) {
-                            ForEach(additionalInfo, id: \.self) { info in
-                                Text(info)
-                                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.95))
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 8)
-                                    .background(.white.opacity(0.2))
-                                    .cornerRadius(4)
+                if menuItem.type == .sustainability {
+                    // Special layout for sustainability card
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Top section with icon and indicators
+                        HStack(alignment: .top) {
+                            // Leaf icon
+                            Image(systemName: menuItem.icon)
+                                .font(.system(size: iconConfig.size, weight: iconConfig.weight))
+                                .foregroundColor(.white)
+                                .symbolRenderingMode(.hierarchical)
+                                .scaleEffect(isHovered ? 1.1 : 1.0)
+                            
+                            Spacer()
+                            
+                            // Stacked indicators
+                            if let additionalInfo = menuItem.additionalInfo {
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    ForEach(additionalInfo, id: \.self) { info in
+                                        let components = info.split(separator: " ", maxSplits: 1)
+                                        if components.count == 2 {
+                                            HStack(spacing: 4) {
+                                                Image(String(components[0]))
+                                                    .resizable()
+                                                    .renderingMode(.template)
+                                                    .foregroundColor(.white)
+                                                    .frame(width: 16, height: 16)
+                                                Text(String(components[1]))
+                                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                                    .foregroundColor(.white)
+                                            }
+                                            .padding(.vertical, 4)
+                                            .padding(.horizontal, 8)
+                                            .background(.white.opacity(0.2))
+                                            .cornerRadius(20)
+                                        }
+                                    }
+                                }
                             }
                         }
-                        .padding(.top, 4)
+                        
+                        Spacer()
+                        
+                        // Title and description at bottom
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(menuItem.title)
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            
+                            Text(menuItem.description)
+                                .font(.system(size: 15, weight: .regular, design: .rounded))
+                                .foregroundColor(.white.opacity(0.9))
+                                .lineLimit(1)
+                        }
+                    }
+                } else {
+                    // Original layout for other cards
+                    Image(systemName: menuItem.icon)
+                        .font(.system(size: iconConfig.size, weight: iconConfig.weight))
+                        .foregroundColor(.white)
+                        .symbolRenderingMode(.hierarchical)
+                        .scaleEffect(isHovered ? 1.1 : 1.0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                        .padding(.bottom, 8)
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(menuItem.title)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                            .lineLimit(1)
+                        
+                        Text(menuItem.description)
+                            .font(.system(size: 15, weight: .regular, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
+                            .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        
+                        if let additionalInfo = menuItem.additionalInfo {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(additionalInfo, id: \.self) { info in
+                                    Text(info)
+                                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.95))
+                                        .padding(.vertical, 4)
+                                        .padding(.horizontal, 8)
+                                        .background(.white.opacity(0.2))
+                                        .cornerRadius(4)
+                                }
+                            }
+                            .padding(.top, 4)
+                        }
                     }
                 }
             }
@@ -88,11 +141,9 @@ struct DashboardCard: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(
                 ZStack {
-                    // Base gradient
                     getGradient(for: menuItem.type)
                         .opacity(0.95)
                     
-                    // Glass effect overlay
                     Color.white.opacity(0.05)
                 }
             )
@@ -101,7 +152,6 @@ struct DashboardCard: View {
                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            // Enhanced shadow system
             .shadow(
                 color: Color(.sRGBLinear, white: 0, opacity: 0.15),
                 radius: isHovered ? 20 : 10,
@@ -114,7 +164,6 @@ struct DashboardCard: View {
                 x: 0,
                 y: isHovered ? 2 : 1
             )
-            // Transform effect
             .scaleEffect(isPressed ? 0.98 : (isHovered ? 1.02 : 1.0))
             .offset(y: isHovered ? -2 : 0)
         }

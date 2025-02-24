@@ -36,7 +36,9 @@ class DashboardViewModel: ObservableObject {
     }
     
     func contactSupport(for activity: Activity, message: String) {
-        // Implementation here
+        // Implementation removed as we now use the unified ContactSupportView
+        // This method is kept for backward compatibility but should be removed in future
+        print("Warning: Using deprecated contactSupport method. Use ContactSupportView directly instead.")
     }
     
     func handleMenuAction(for item: MenuCardItem) {

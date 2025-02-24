@@ -37,8 +37,8 @@ extension MenuCardItem {
             icon: "leaf.fill",
             type: .sustainability,
             additionalInfo: [
-                "🌳 \(EnvironmentalImpact(co2InKg: 5475.0).treesEquivalent) Trees Planted",
-                "🚗 \(String(format: "%.1f", EnvironmentalImpact(co2InKg: 5475.0).carsPerDay)) Cars Off Road/Day"
+                "tree 64 Trees",
+                "car 3.3 Cars/Day"
             ]
         ),
         MenuCardItem(

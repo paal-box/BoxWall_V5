@@ -7,7 +7,46 @@ class CO2ViewModel: ObservableObject {
     @Published private(set) var impactEntries: [CO2ImpactEntry] = []
     @Published private(set) var currentLocation: CO2Data.LocationData
     @Published private(set) var environmentalImpact: EnvironmentalImpact
-    @Published var selectedTimeframe: TimeFrame = .month
+    @Published var selectedTimeframe: TimeFrame = .annual
+    
+    // Calculator Properties
+    @Published var wallMovements: Double = 2
+    @Published var modules: Double = 50
+    @Published var moduleHeight: Double = 2.4  // Default height in meters
+    
+    // Module dimensions
+    private let moduleWidth: Double = 0.6  // Standard module width in meters
+    
+    // Area calculations
+    var moduleArea: Double {
+        moduleHeight * moduleWidth
+    }
+    
+    var totalArea: Double {
+        moduleArea * modules
+    }
+    
+    // CO2 impact calculations based on height
+    func getCO2PerUnit(forHeight height: Double) -> Double {
+        // Base CO2 for 2.4m height is 354.2 kg
+        // Calculate proportional increase based on height
+        let baseHeight = 2.4
+        let baseCO2 = 354.2
+        return baseCO2 * (height / baseHeight)
+    }
+    
+    private func getBasePrice(forHeight height: Double) -> Double {
+        // Base price for 2.4m height is 3500 NOK
+        // Calculate proportional increase based on height
+        let baseHeight = 2.4
+        let basePrice = 3500.0
+        return basePrice * (height / baseHeight)
+    }
+    
+    // Constants for calculations
+    private let reusabilityFactor: Double = 0.85  // 85% efficiency in reuse
+    private let transportEmissionFactor: Double = 0.2  // 20% additional from transport
+    private let installationCostFactor: Double = 0.15  // 15% of base price for installation
     
     // MARK: - Computed Properties
     var totalCO2Saved: Double {
@@ -22,30 +61,14 @@ class CO2ViewModel: ObservableObject {
         impactEntries.averageModulesMoved
     }
     
-    // MARK: - Time Frame Enum
-    enum TimeFrame: String, CaseIterable {
-        case week = "Week"
-        case month = "Month"
-        case year = "Year"
-        case all = "All Time"
-        
-        var dateRange: (start: Date, end: Date) {
-            let end = Date()
-            let start: Date
-            
-            switch self {
-            case .week:
-                start = Calendar.current.date(byAdding: .day, value: -7, to: end)!
-            case .month:
-                start = Calendar.current.date(byAdding: .month, value: -1, to: end)!
-            case .year:
-                start = Calendar.current.date(byAdding: .year, value: -1, to: end)!
-            case .all:
-                start = Date.distantPast
-            }
-            
-            return (start, end)
-        }
+    var co2Saved: String {
+        let amount = Int(calculateCO2Savings())
+        return formatNumber(amount) + " kg"
+    }
+    
+    var financialSavings: String {
+        let amount = Int(calculateFinancialSavings())
+        return formatNumber(amount) + " NOK"
     }
     
     // MARK: - Initialization
@@ -53,6 +76,30 @@ class CO2ViewModel: ObservableObject {
         self.currentLocation = location
         self.environmentalImpact = EnvironmentalImpact(co2InKg: 0)
         loadImpactData()
+    }
+    
+    // MARK: - Private Methods
+    private func calculateCO2Savings() -> Double {
+        let baseImpact = getCO2PerUnit(forHeight: moduleHeight) * modules
+        let movementImpact = baseImpact * max(1, wallMovements) * reusabilityFactor
+        let transportImpact = baseImpact * transportEmissionFactor
+        let monthlyImpact = movementImpact + transportImpact
+        return monthlyImpact * selectedTimeframe.multiplier
+    }
+    
+    private func calculateFinancialSavings() -> Double {
+        let basePrice = getBasePrice(forHeight: moduleHeight) * modules
+        let installationCost = basePrice * installationCostFactor
+        let totalCostPerMove = basePrice + installationCost
+        let monthlySavings = totalCostPerMove * max(1, wallMovements)
+        return monthlySavings * selectedTimeframe.multiplier
+    }
+    
+    private func formatNumber(_ number: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ","
+        return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
     }
     
     // MARK: - Public Methods
@@ -71,7 +118,6 @@ class CO2ViewModel: ObservableObject {
         updateEnvironmentalImpact()
     }
     
-    // MARK: - Private Methods
     private func updateEnvironmentalImpact() {
         let dateRange = selectedTimeframe.dateRange
         let filteredEntries = impactEntries.entriesForPeriod(
@@ -94,5 +140,16 @@ class CO2ViewModel: ObservableObject {
     
     private func saveImpactData() {
         // TODO: Implement data persistence
+    }
+}
+
+// MARK: - Preview Helper
+extension CO2ViewModel {
+    static var preview: CO2ViewModel {
+        let viewModel = CO2ViewModel()
+        viewModel.modules = 50
+        viewModel.moduleHeight = 2.4
+        viewModel.wallMovements = 2
+        return viewModel
     }
 } 

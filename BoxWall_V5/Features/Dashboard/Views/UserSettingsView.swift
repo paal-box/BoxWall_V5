@@ -6,6 +6,7 @@ struct UserSettingsView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingDataRequestConfirmation = false
     @State private var showingLogoutConfirmation = false
+    @State private var showingContactSupport = false
     
     var body: some View {
         NavigationView {
@@ -137,9 +138,7 @@ struct UserSettingsView: View {
                             .foregroundColor(BoxWallColors.textPrimary)
                     }
                     
-                    NavigationLink {
-                        SupportView()
-                    } label: {
+                    Button(action: { showingContactSupport = true }) {
                         Label("Contact Support", systemImage: "questionmark.circle.fill")
                             .foregroundColor(BoxWallColors.textPrimary)
                     }
@@ -156,6 +155,9 @@ struct UserSettingsView: View {
                 }
             }
             .tint(BoxWallColors.boxwallGreen)
+            .sheet(isPresented: $showingContactSupport) {
+                ContactSupportView()
+            }
         }
         .alert("Request Your Data", isPresented: $showingDataRequestConfirmation) {
             Button("Cancel", role: .cancel) { }
@@ -196,13 +198,6 @@ struct TermsOfServiceView: View {
     var body: some View {
         Text("Terms of Service")
             .navigationTitle("Terms of Service")
-    }
-}
-
-struct SupportView: View {
-    var body: some View {
-        Text("Support")
-            .navigationTitle("Contact Support")
     }
 }
 
