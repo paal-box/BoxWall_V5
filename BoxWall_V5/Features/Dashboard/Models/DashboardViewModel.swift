@@ -8,6 +8,7 @@ class DashboardViewModel: ObservableObject {
     @Published var showingAllActivities = false
     @Published var showingNews = false
     @Published var showingReFlex = false
+    @Published var showingTalkToBoxWall = false
     @Published var unreadNotifications = 2
     
     // User Info
@@ -47,8 +48,7 @@ class DashboardViewModel: ObservableObject {
             // Shop is now handled by TabView
             break
         case .expert:
-            // Expert guidance removed
-            break
+            showingTalkToBoxWall = true
         case .sustainability:
             // CO2 Impact is now handled by TabView
             break
@@ -58,8 +58,7 @@ class DashboardViewModel: ObservableObject {
         case .news:
             showingNews = true
         case .reflex:
-            // ReFlex feature not implemented yet
-            break
+            showingReFlex = true
         }
     }
 }

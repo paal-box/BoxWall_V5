@@ -9,153 +9,153 @@ struct UserSettingsView: View {
     @State private var showingContactSupport = false
     
     var body: some View {
-        NavigationView {
-            List {
-                // Account Section
-                Section {
-                    HStack(spacing: DesignSystem.Layout.spacing) {
-                        // Profile Picture
-                        Button(action: { /* Add profile picture action */ }) {
-                            ZStack {
-                                Circle()
-                                    .fill(BoxWallColors.textSecondary.opacity(0.1))
-                                    .frame(width: 80, height: 80)
-                                
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 32, weight: .light))
-                                    .foregroundColor(BoxWallColors.boxwallGreen)
-                                    .symbolRenderingMode(.hierarchical)
-                                
-                                Circle()
-                                    .strokeBorder(BoxWallColors.boxwallGreen.opacity(0.2), lineWidth: 2)
-                                    .frame(width: 80, height: 80)
-                            }
-                            .overlay(alignment: .bottomTrailing) {
-                                Image(systemName: "pencil.circle.fill")
-                                    .font(.system(size: 24))
-                                    .foregroundStyle(BoxWallColors.boxwallGreen)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                                    .offset(x: 6, y: 6)
-                            }
+        List {
+            // Account Section
+            Section {
+                HStack(spacing: DesignSystem.Layout.spacing) {
+                    // Profile Picture
+                    Button(action: { /* Add profile picture action */ }) {
+                        ZStack {
+                            Circle()
+                                .fill(BoxWallColors.textSecondary.opacity(0.1))
+                                .frame(width: 80, height: 80)
+                            
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 32, weight: .light))
+                                .foregroundColor(BoxWallColors.boxwallGreen)
+                                .symbolRenderingMode(.hierarchical)
+                            
+                            Circle()
+                                .strokeBorder(BoxWallColors.boxwallGreen.opacity(0.2), lineWidth: 2)
+                                .frame(width: 80, height: 80)
                         }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(viewModel.userName)
-                                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                                .foregroundColor(BoxWallColors.textPrimary)
-                            Text(viewModel.userEmail)
-                                .font(.system(size: 15, weight: .regular, design: .rounded))
-                                .foregroundColor(BoxWallColors.textSecondary)
+                        .overlay(alignment: .bottomTrailing) {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundStyle(BoxWallColors.boxwallGreen)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .offset(x: 6, y: 6)
                         }
                     }
-                    .padding(.vertical, 8)
                     
-                    if viewModel.isLoggedIn {
-                        Button(role: .destructive, action: { showingLogoutConfirmation = true }) {
-                            HStack {
-                                Text("Log Out")
-                                Spacer()
-                                Image(systemName: "arrow.right.square")
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Account")
-                }
-                
-                // Notifications Section
-                Section {
-                    Toggle("Enable Notifications", isOn: $viewModel.notificationsEnabled)
-                        .tint(BoxWallColors.boxwallGreen)
-                    
-                    Toggle("Email Notifications", isOn: $viewModel.emailNotifications)
-                        .tint(BoxWallColors.boxwallGreen)
-                } header: {
-                    Text("Notifications")
-                } footer: {
-                    Text("Receive updates about your orders, deliveries, and important announcements.")
-                }
-                
-                // Appearance Section
-                Section {
-                    Toggle("Dark Mode", isOn: $viewModel.darkModeEnabled.animation(.easeInOut(duration: 0.3)))
-                        .tint(BoxWallColors.boxwallGreen)
-                } header: {
-                    Text("Appearance")
-                }
-                
-                // Privacy & Data Section
-                Section {
-                    NavigationLink {
-                        PrivacyPolicyView()
-                    } label: {
-                        Label("Privacy Policy", systemImage: "hand.raised.fill")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(viewModel.userName)
+                            .font(.system(size: 20, weight: .semibold, design: .rounded))
                             .foregroundColor(BoxWallColors.textPrimary)
-                    }
-                    
-                    Button(action: { showingDataRequestConfirmation = true }) {
-                        HStack {
-                            Label("Request My Data", systemImage: "arrow.down.doc.fill")
-                                .foregroundColor(BoxWallColors.textPrimary)
-                            if viewModel.isProcessing {
-                                Spacer()
-                                ProgressView()
-                                    .tint(BoxWallColors.boxwallGreen)
-                            }
-                        }
-                    }
-                    .disabled(viewModel.isProcessing)
-                    
-                    Button(role: .destructive, action: { showingDeleteConfirmation = true }) {
-                        HStack {
-                            Label("Delete My Data", systemImage: "trash.fill")
-                            if viewModel.isProcessing {
-                                Spacer()
-                                ProgressView()
-                                    .tint(BoxWallColors.boxwallGreen)
-                            }
-                        }
-                    }
-                    .disabled(viewModel.isProcessing)
-                } header: {
-                    Text("Privacy & Data")
-                }
-                
-                // About Section
-                Section {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text("1.0.0")
+                        Text(viewModel.userEmail)
+                            .font(.system(size: 15, weight: .regular, design: .rounded))
                             .foregroundColor(BoxWallColors.textSecondary)
                     }
-                    
-                    NavigationLink {
-                        TermsOfServiceView()
-                    } label: {
-                        Label("Terms of Service", systemImage: "doc.text.fill")
-                            .foregroundColor(BoxWallColors.textPrimary)
-                    }
-                    
-                    Button(action: { showingContactSupport = true }) {
-                        Label("Contact Support", systemImage: "questionmark.circle.fill")
-                            .foregroundColor(BoxWallColors.textPrimary)
-                    }
-                } header: {
-                    Text("About")
                 }
-            }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                        .foregroundColor(BoxWallColors.boxwallGreen)
+                .padding(.vertical, 8)
+                
+                if viewModel.isLoggedIn {
+                    Button(role: .destructive, action: { showingLogoutConfirmation = true }) {
+                        HStack {
+                            Text("Log Out")
+                            Spacer()
+                            Image(systemName: "arrow.right.square")
+                        }
+                    }
                 }
+            } header: {
+                Text("Account")
             }
-            .tint(BoxWallColors.boxwallGreen)
-            .sheet(isPresented: $showingContactSupport) {
+            
+            // Notifications Section
+            Section {
+                Toggle("Enable Notifications", isOn: $viewModel.notificationsEnabled)
+                    .tint(BoxWallColors.boxwallGreen)
+                
+                Toggle("Email Notifications", isOn: $viewModel.emailNotifications)
+                    .tint(BoxWallColors.boxwallGreen)
+            } header: {
+                Text("Notifications")
+            } footer: {
+                Text("Receive updates about your orders, deliveries, and important announcements.")
+            }
+            
+            // Appearance Section
+            Section {
+                Toggle("Dark Mode", isOn: $viewModel.darkModeEnabled.animation(.easeInOut(duration: 0.3)))
+                    .tint(BoxWallColors.boxwallGreen)
+            } header: {
+                Text("Appearance")
+            }
+            
+            // Privacy & Data Section
+            Section {
+                NavigationLink {
+                    PrivacyPolicyView()
+                } label: {
+                    Label("Privacy Policy", systemImage: "hand.raised.fill")
+                        .foregroundColor(BoxWallColors.textPrimary)
+                }
+                
+                Button(action: { showingDataRequestConfirmation = true }) {
+                    HStack {
+                        Label("Request My Data", systemImage: "arrow.down.doc.fill")
+                            .foregroundColor(BoxWallColors.textPrimary)
+                        if viewModel.isProcessing {
+                            Spacer()
+                            ProgressView()
+                                .tint(BoxWallColors.boxwallGreen)
+                        }
+                    }
+                }
+                .disabled(viewModel.isProcessing)
+                
+                Button(role: .destructive, action: { showingDeleteConfirmation = true }) {
+                    HStack {
+                        Label("Delete My Data", systemImage: "trash.fill")
+                        if viewModel.isProcessing {
+                            Spacer()
+                            ProgressView()
+                                .tint(BoxWallColors.boxwallGreen)
+                        }
+                    }
+                }
+                .disabled(viewModel.isProcessing)
+            } header: {
+                Text("Privacy & Data")
+            }
+            
+            // About Section
+            Section {
+                HStack {
+                    Text("Version")
+                    Spacer()
+                    Text("1.0.0")
+                        .foregroundColor(BoxWallColors.textSecondary)
+                }
+                
+                NavigationLink {
+                    TermsOfServiceView()
+                } label: {
+                    Label("Terms of Service", systemImage: "doc.text.fill")
+                        .foregroundColor(BoxWallColors.textPrimary)
+                }
+                
+                Button(action: { showingContactSupport = true }) {
+                    Label("Contact Support", systemImage: "questionmark.circle.fill")
+                        .foregroundColor(BoxWallColors.textPrimary)
+                }
+            } header: {
+                Text("About")
+            }
+        }
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Done") { dismiss() }
+                    .foregroundColor(BoxWallColors.boxwallGreen)
+            }
+        }
+        .tint(BoxWallColors.boxwallGreen)
+        .sheet(isPresented: $showingContactSupport) {
+            NavigationStack {
                 ContactSupportView()
             }
         }

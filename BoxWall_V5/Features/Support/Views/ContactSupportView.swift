@@ -34,6 +34,7 @@ struct ContactSupportView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(BoxWallColors.boxwallGreen)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {

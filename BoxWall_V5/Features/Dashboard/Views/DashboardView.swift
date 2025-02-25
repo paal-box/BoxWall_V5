@@ -160,9 +160,13 @@ struct DashboardView: View {
             }
         }
         .sheet(isPresented: $viewModel.showingNews) {
-            NavigationStack {
-                NewsView()
-            }
+            NewsView()
+        }
+        .sheet(isPresented: $viewModel.showingTalkToBoxWall) {
+            TalkToBoxWallView()
+        }
+        .sheet(isPresented: $viewModel.showingReFlex) {
+            ReFlexView()
         }
     }
     
