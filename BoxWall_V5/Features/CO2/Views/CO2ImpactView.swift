@@ -5,6 +5,7 @@ struct CO2ImpactView: View {
     @StateObject private var viewModel = CO2ViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showingCalculatorInfo = false
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -14,7 +15,7 @@ struct CO2ImpactView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 12) {
                     // User Profile Section
                     userProfileSection
                     
@@ -40,31 +41,51 @@ struct CO2ImpactView: View {
     
     // MARK: - View Components
     private var userProfileSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                // Placeholder for profile image
-                Circle()
-                    .fill(BoxWallColors.secondaryBackground)
-                    .frame(width: 50, height: 50)
+        VStack(spacing: 16) {
+            // Inventory Stats
+            HStack(alignment: .bottom, spacing: 24) {
+                // Office Building Icon
+                Image(systemName: "building.2.fill")
+                    .font(.system(size: 72))
+                    .foregroundColor(BoxWallColors.Brand.green)
+                    .frame(width: 100, height: 100)
+                    .background(BoxWallColors.secondaryBackground.opacity(0.5))
+                    .clipShape(Circle())
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Floor 4")
+                // Inventory Stats
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Your BoxWall Impact")
                         .font(.headline)
-                    Text("Tenant X")
-                        .font(.subheadline)
                         .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 20) {
+                        VStack(spacing: 4) {
+                            Text("\(viewModel.inventoryStats.modules)")
+                                .font(.headline)
+                            Text("modules")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        VStack(spacing: 4) {
+                            Text("\(viewModel.inventoryStats.reuses)")
+                                .font(.headline)
+                            Text("reuses")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        VStack(spacing: 4) {
+                            Text(viewModel.inventoryStats.co2Saved)
+                                .font(.headline)
+                                .foregroundColor(.green)
+                            Text("kg CO₂ saved")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
-                
-                Spacer()
             }
-            
-            HStack {
-                Image(systemName: "arrow.triangle.2.circlepath")
-                    .foregroundColor(.blue)
-                Text("Reuses: 2")
-                    .foregroundColor(.blue)
-            }
-            .font(.subheadline)
         }
         .padding()
         .background(BoxWallColors.secondaryBackground.opacity(0.5))
@@ -72,37 +93,7 @@ struct CO2ImpactView: View {
     }
     
     private var equivalencySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Your CO₂ savings are equivalent to:")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            HStack(spacing: 20) {
-                equivalencyItem(
-                    icon: "leaf.fill",
-                    value: "260",
-                    unit: "trees",
-                    color: .green
-                )
-                
-                equivalencyItem(
-                    icon: "car.fill",
-                    value: "13.3",
-                    unit: "cars/day",
-                    color: .blue
-                )
-                
-                equivalencyItem(
-                    icon: "bolt.fill",
-                    value: "12732.6",
-                    unit: "kWh",
-                    color: .yellow
-                )
-            }
-        }
-        .padding()
-        .background(BoxWallColors.secondaryBackground.opacity(0.5))
-        .cornerRadius(12)
+        Color.clear.frame(height: 0) // Removing this section since we moved it up
     }
     
     private func equivalencyItem(icon: String, value: String, unit: String, color: Color) -> some View {
@@ -122,20 +113,20 @@ struct CO2ImpactView: View {
     }
     
     private var savingsCalculatorSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Savings Calculator")
                     .font(.headline)
                 
                 Spacer()
                 
-                Button(action: { /* Add help action */ }) {
+                Button(action: { showingCalculatorInfo = true }) {
                     Image(systemName: "info.circle")
                         .foregroundColor(BoxWallColors.textSecondary)
                 }
             }
             
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
                 // Timeframe Picker
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
@@ -161,57 +152,123 @@ struct CO2ImpactView: View {
                         .foregroundColor(BoxWallColors.textSecondary)
                 }
                 
-                // Module Height Slider
-                SliderSection(
-                    title: "Module Height",
-                    value: $viewModel.moduleHeight,
-                    range: 2.4...4.0,
-                    subtitle: "Please select your average ceiling height",
-                    helperText: "Standard module starts at 2.4m",
-                    format: "%.1f m"
-                )
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "leaf.fill")
-                        .foregroundColor(.green)
-                        .font(.caption)
-                    Text("CO₂ per unit: \(Int(viewModel.getCO2PerUnit(forHeight: viewModel.moduleHeight))) kg")
-                        .font(.caption)
+                // Ceiling Height Selector
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Ceiling Height")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.predefinedHeights, id: \.self) { height in
+                            Button(action: {
+                                viewModel.setHeight(height)
+                            }) {
+                                Text("\(height)cm")
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        !viewModel.isCustomHeight && Int(viewModel.moduleHeight * 100) == height
+                                            ? BoxWallColors.Brand.green
+                                            : BoxWallColors.secondaryBackground
+                                    )
+                                    .foregroundColor(
+                                        !viewModel.isCustomHeight && Int(viewModel.moduleHeight * 100) == height
+                                            ? .white
+                                            : .primary
+                                    )
+                                    .cornerRadius(8)
+                            }
+                        }
+                        
+                        Button(action: {
+                            viewModel.isCustomHeight = true
+                            if viewModel.customHeight.isEmpty {
+                                viewModel.customHeight = String(format: "%.0f", viewModel.moduleHeight * 100)
+                            }
+                        }) {
+                            Text("Custom")
+                                .font(.subheadline)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    viewModel.isCustomHeight
+                                        ? BoxWallColors.Brand.green
+                                        : BoxWallColors.secondaryBackground
+                                )
+                                .foregroundColor(
+                                    viewModel.isCustomHeight
+                                        ? .white
+                                        : .primary
+                                )
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    if viewModel.isCustomHeight {
+                        HStack {
+                            TextField("Height (200-400)", text: Binding(
+                                get: { viewModel.customHeight },
+                                set: { newValue in
+                                    viewModel.customHeight = newValue
+                                    viewModel.validateCustomHeight()
+                                    if viewModel.isValidCustomHeight {
+                                        viewModel.setCustomHeight(newValue)
+                                    }
+                                }
+                            ))
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 120)
+                            
+                            Text("cm")
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            if !viewModel.isValidCustomHeight {
+                                Text("Enter 200-400")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
                 }
-                .padding(.horizontal, 4)
                 
+                // Wall Area Slider
                 SliderSection(
-                    title: "Wall Movements",
-                    value: $viewModel.wallMovements,
-                    range: 0...10,
-                    subtitle: "Expected number of refits over building lifetime",
-                    helperText: "Each refit represents a complete reconfiguration of the wall modules",
-                    format: "%.0f"
+                    title: "Wall Area",
+                    value: $viewModel.totalWallArea,
+                    range: 100...10000,
+                    subtitle: "Total wall area to be converted",
+                    helperText: "Enter the total wall area in m² that could be replaced with BoxWall",
+                    format: "%.0f m²"
                 )
                 
+                // Annual Area Moved Slider
                 SliderSection(
-                    title: "Modules",
-                    value: $viewModel.modules,
-                    range: 0...500,
-                    subtitle: "Total number of modules in the project",
-                    helperText: "More modules = greater potential for CO₂ savings through reuse",
-                    format: "%.0f"
+                    title: "Annual Area Moved",
+                    value: $viewModel.annualAreaMoved,
+                    range: 0...viewModel.totalWallArea,
+                    subtitle: "Average wall area moved per year",
+                    helperText: "Estimate how many square meters of walls are moved annually",
+                    format: String(format: "%.0f m² (%d%%)", viewModel.annualAreaMoved, Int(viewModel.annualAreaMovedPercentage))
                 )
                 
                 // Area Information
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Area")
+                    Text("Required Modules")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(String(format: "%.1f m² per module", viewModel.moduleArea))
+                            Text(String(format: "%.0f modules needed", viewModel.numberOfModules))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             
-                            Text(String(format: "%.1f m² total area", viewModel.totalArea))
+                            Text(String(format: "%.1f m² total coverage", viewModel.actualTotalArea))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -229,37 +286,46 @@ struct CO2ImpactView: View {
                 }
                 
                 // Results
-                VStack(spacing: 16) {
-                    VStack(spacing: 4) {
-                        Text("Estimated Impact")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(viewModel.selectedTimeframe.description)
-                            .font(.caption)
-                            .foregroundColor(BoxWallColors.textSecondary)
-                    }
-                    
-                    HStack(spacing: 20) {
-                        ResultCard(
-                            icon: "leaf.fill",
-                            value: viewModel.co2Saved,
-                            label: "CO₂ Saved",
-                            color: .green
-                        )
-                        
-                        ResultCard(
-                            icon: "creditcard.fill",
-                            value: viewModel.financialSavings,
-                            label: "Cost Savings",
-                            color: BoxWallColors.Brand.green
-                        )
-                    }
-                }
+                resultsSection
             }
         }
         .padding()
         .background(BoxWallColors.secondaryBackground.opacity(0.5))
         .cornerRadius(12)
+        .alert("About the Savings Calculator", isPresented: $showingCalculatorInfo) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.calculatorTooltip)
+        }
+    }
+    
+    private var resultsSection: some View {
+        VStack(spacing: 16) {
+            Text("Estimated Impact")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            Text(viewModel.selectedTimeframe.description)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            HStack(spacing: 16) {
+                ResultCard(
+                    icon: "leaf.fill",
+                    value: viewModel.co2Saved,
+                    label: viewModel.co2SavedUnit,
+                    color: .green
+                )
+                
+                ResultCard(
+                    icon: "creditcard.fill",
+                    value: viewModel.financialSavings,
+                    label: viewModel.financialSavingsUnit,
+                    color: BoxWallColors.Brand.green
+                )
+            }
+        }
     }
     
     private var projectionSection: some View {
@@ -318,20 +384,26 @@ private struct ResultCard: View {
     let color: Color
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Icon
             Image(systemName: icon)
-                .font(.system(size: 24))
+                .font(.system(size: 18))
                 .foregroundColor(color)
             
-            Text(value)
-                .font(.headline)
-                .foregroundColor(color)
-            
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            // Value and Unit
+            VStack(alignment: .leading, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(color)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                
+                Text(label)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(color.opacity(0.1))
         .cornerRadius(12)
